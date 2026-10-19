@@ -12,6 +12,8 @@ import { ProviderModelListSection } from './models/ProviderModelListSection';
 import { SafetySection } from '@/components/settings/sections/SafetySection';
 import { ConfirmationModal } from '@/components/modals/ConfirmationModal';
 import { getClient } from '@/services/api/apiClient';
+import { getServerAuthHeaders } from '@/services/api/apiAuthHeaders';
+import { withHttpOptionHeaders } from '@/services/api/geminiApiVersion';
 import {
   isServerManagedApiEnabledForProxyRequests,
   parseApiKeys,
@@ -91,7 +93,10 @@ export const GeminiProviderDetail: React.FC<GeminiProviderDetailProps> = ({
         settings.useCustomApiConfig && settings.useApiProxy && settings.apiProxyUrl ? settings.apiProxyUrl : null;
 
       const effectiveKey = firstKey || (canUseServerManaged ? SERVER_MANAGED_API_KEY : 'default');
-      const ai = await getClient(effectiveKey, effectiveUrl);
+      // Attach the server gatekeeper password when one is configured: chat
+      // requests get it via getConfiguredApiClient, but this probe builds its
+      // own client and would otherwise fail the backend's access check.
+      const ai = await getClient(effectiveKey, effectiveUrl, withHttpOptionHeaders(undefined, getServerAuthHeaders()));
       await ai.models.generateContent({
         model: modelId,
         contents: 'Hello',

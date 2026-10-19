@@ -97,7 +97,7 @@ describe('ApiConfigSection', () => {
     await vi.waitFor(() => {
       expect(getClientMock).toHaveBeenCalled();
     });
-    expect(getClientMock).toHaveBeenCalledWith(SERVER_MANAGED_API_KEY, 'https://proxy.example.com/v1beta');
+    expect(getClientMock).toHaveBeenCalledWith(SERVER_MANAGED_API_KEY, 'https://proxy.example.com/v1beta', undefined);
 
     await vi.waitFor(() => {
       expect(generateContentMock).toHaveBeenCalledWith({

@@ -65,6 +65,18 @@ describe('apiAuthHeaders', () => {
         },
       }),
     );
+
+    const geminiProxyResult = await verifyServerAccessPassword('correct-pass', 'https://api.ruin.pics/api/gemini/');
+    expect(geminiProxyResult.ok).toBe(true);
+    expect(fetchSpy).toHaveBeenLastCalledWith(
+      'https://api.ruin.pics/api/auth/verify',
+      expect.objectContaining({
+        headers: {
+          'x-access-token': 'correct-pass',
+          authorization: 'Bearer correct-pass',
+        },
+      }),
+    );
   });
 
   it('checks if server requires auth via /health', async () => {

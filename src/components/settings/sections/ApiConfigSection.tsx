@@ -6,6 +6,8 @@ import { useI18n } from '@/contexts/I18nContext';
 import { DEFAULT_LIVE_ARTIFACTS_MODEL_ID } from '@/constants/modelConfiguration';
 import { CONNECTION_TEST_MODELS } from '@/constants/settingsModelOptions';
 import { getClient } from '@/services/api/apiClient';
+import { getServerAuthHeaders } from '@/services/api/apiAuthHeaders';
+import { withHttpOptionHeaders } from '@/services/api/geminiApiVersion';
 import {
   isServerManagedApiEnabledForProxyRequests,
   parseApiKeys,
@@ -172,7 +174,10 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
 
     const startTime = performance.now();
     try {
-      const ai = await getClient(firstKey, effectiveUrl);
+      // Attach the server gatekeeper password when one is configured, matching
+      // the chat flow (getConfiguredApiClient), so a password-protected
+      // backend does not reject this settings-page test with 401.
+      const ai = await getClient(firstKey, effectiveUrl, withHttpOptionHeaders(undefined, getServerAuthHeaders()));
 
       await ai.models.generateContent({
         model: testModelId || DEFAULT_LIVE_ARTIFACTS_MODEL_ID,
